@@ -2,3 +2,5 @@ argparse==1.2.1
 python-dateutil==1.5
 redis
 tornado==2.1.1
+email==4.0.2
+apscheduler==3.3.1

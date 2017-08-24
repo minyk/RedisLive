@@ -24,5 +24,12 @@
 	"SqliteStatsStore" :
 	{
 		"path":  "to your sql lite file"
+	},
+
+	"Mail": 
+	{
+		"FromAddr": "xxx",
+		"ToAddr" : ["xxx"],
+		"SMTPServer": "xxx"
 	}
 }

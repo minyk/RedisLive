@@ -8,7 +8,7 @@ import smtplib
 
 
 def send(fromAddr, toAddr, smtpServer, content):
-    msg = msg = MIMEText('<html><body>' + content + '</body></html>', 'html', 'utf-8')
+    msg = MIMEText('<html><body>' + content + '</body></html>', 'html', 'utf-8')
     msg['From'] = fromAddr
     msg['To'] = toAddr
     msg['Subject'] = Header('Redis Alter...', 'utf-8').encode()

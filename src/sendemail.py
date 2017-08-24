@@ -1,4 +1,5 @@
 #-*- coding: UTF-8 -*-
+#! /usr/bin/env python
 
 from email.header import Header
 from email.mime.text import MIMEText

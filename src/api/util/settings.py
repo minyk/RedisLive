@@ -28,3 +28,7 @@ def get_data_store_type():
 def get_sqlite_stats_store():
     config = get_settings()
     return config["SqliteStatsStore"]
+
+def get_mail():
+    config = get_settings()
+    return config['Mail']

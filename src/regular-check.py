@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 from apscheduler.schedulers.blocking import BlockingScheduler
-
+import os
 
 def job():
     """
@@ -10,9 +10,9 @@ def job():
     # duration = 60
     # monitor = RedisMonitor()
     # monitor.run(duration)
-    execfile("python ./redis-monitor.py --duration=60")
+    os.system("python ./redis-monitor.py --duration=60")
 
-
+os.system("python ./redis-live & ")
 scheduler = BlockingScheduler()
 scheduler.add_job(job, 'interval', minutes=5)
 scheduler.start()

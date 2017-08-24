@@ -12,7 +12,7 @@ def job():
     # monitor.run(duration)
     os.system("python ./redis-monitor.py --duration=60")
 
-os.system("python ./redis-live & ")
+os.system("python ./redis-live.py & ")
 scheduler = BlockingScheduler()
 scheduler.add_job(job, 'interval', minutes=5)
 scheduler.start()

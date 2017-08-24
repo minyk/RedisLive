@@ -258,7 +258,7 @@ class RedisMonitor(object):
             redis_password = redis_server.get("password")
 
             b = self.ping(redis_server["server"], redis_server["port"], redis_password)
-            if not b:
+            if b is False:
                 continue
 
             monitor = MonitorThread(
@@ -296,17 +296,17 @@ class RedisMonitor(object):
             t.stop()
         self.active = False
 
-    def ping(self, server, port, password):
+    def ping(self, rserver, rport, rpassword):
         """send ping command, send a alter main when ping failed.
         """
         try:
             if self.pool is None:
-                pool = redis.ConnectionPool(host=server, port=port, db=0, password=password)
+                pool = redis.ConnectionPool(host=rserver, port=rport, db=0, password=rpassword)
             connection = pool.get_connection('ping', None)
             connection.send_command("ping")
             return True
         except Exception:
-            self.failedList.append(server + ":" + port)
+            self.failedList.append(rserver + ":" + str(rport))
             return False
 
     def sendMail(self):
@@ -324,3 +324,16 @@ class RedisMonitor(object):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Monitor redis.')
+    parser.add_argument('--duration',
+                        type=int,
+                        help="duration to run the monitor command (in seconds)",
+                        required=True)
+    parser.add_argument('--quiet',
+                        help="do  not write anything to standard output",
+                        required=False,
+                        action='store_true')
+    args = parser.parse_args()
+    duration = args.duration
+    monitor = RedisMonitor()
+    monitor.run(duration)

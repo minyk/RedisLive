@@ -9,7 +9,6 @@ import threading
 import traceback
 import argparse
 import time
-import sendemail
 
 
 class Monitor(object):
@@ -44,8 +43,7 @@ class Monitor(object):
         response stream.
         """
         if self.connection is None:
-            self.connection = self.connection_pool.get_connection(
-                'monitor', None)
+            self.connection = self.connection_pool.get_connection('monitor', None)
         self.connection.send_command("monitor")
         return self.listen()
 
@@ -59,7 +57,6 @@ class Monitor(object):
         """
         while True:
             yield self.parse_response()
-
 
 class MonitorThread(threading.Thread):
     """Runs a thread to execute the MONITOR command against a given Redis server
@@ -135,10 +132,10 @@ class MonitorThread(threading.Thread):
                     arguments = None
 
                 if not command == 'INFO' and not command == 'MONITOR':
-                    stats_provider.save_monitor_command(self.id,
-                                                        timestamp,
-                                                        command,
-                                                        str(keyname),
+                    stats_provider.save_monitor_command(self.id, 
+                                                        timestamp, 
+                                                        command, 
+                                                        str(keyname), 
                                                         str(arguments))
 
             except Exception, e:
@@ -151,7 +148,6 @@ class MonitorThread(threading.Thread):
 
             if self.stopped():
                 break
-
 
 class InfoThread(threading.Thread):
     """Runs a thread to execute the INFO command against a given Redis server
@@ -191,7 +187,7 @@ class InfoThread(threading.Thread):
         """
         stats_provider = RedisLiveDataProvider.get_provider()
         redis_client = redis.StrictRedis(host=self.server, port=self.port, db=0,
-                                         password=self.password)
+                                        password=self.password)
 
         # process the results from redis
         while not self.stopped():
@@ -206,9 +202,9 @@ class InfoThread(threading.Thread):
                 except:
                     peak_memory = used_memory
 
-                stats_provider.save_memory_info(self.id, current_time,
+                stats_provider.save_memory_info(self.id, current_time, 
                                                 used_memory, peak_memory)
-                stats_provider.save_info_command(self.id, current_time,
+                stats_provider.save_info_command(self.id, current_time, 
                                                  redis_info)
 
                 # databases=[]
@@ -235,14 +231,11 @@ class InfoThread(threading.Thread):
                 print tb
                 print "==============================\n"
 
-
 class RedisMonitor(object):
 
     def __init__(self):
         self.threads = []
         self.active = True
-        self.failedList = []
-        self.pool = None
 
     def run(self, duration):
         """Monitors all redis servers defined in the config for a certain number
@@ -253,22 +246,17 @@ class RedisMonitor(object):
         """
         redis_servers = settings.get_redis_servers()
 
+
         for redis_server in redis_servers:
 
             redis_password = redis_server.get("password")
 
-            b = self.ping(redis_server["server"], redis_server["port"], redis_password)
-            if b is False:
-                continue
-
-            monitor = MonitorThread(
-                redis_server["server"], redis_server["port"], redis_password)
+            monitor = MonitorThread(redis_server["server"], redis_server["port"], redis_password)
             self.threads.append(monitor)
             monitor.setDaemon(True)
             monitor.start()
 
-            info = InfoThread(
-                redis_server["server"], redis_server["port"], redis_password)
+            info = InfoThread(redis_server["server"], redis_server["port"], redis_password)
             self.threads.append(info)
             info.setDaemon(True)
             info.start()
@@ -286,41 +274,11 @@ class RedisMonitor(object):
     def stop(self):
         """Stops the monitor and all associated threads.
         """
-        if len(self.failedList) > 0:
-            self.sendMail()
-
-        if args.quiet is False:
-            print self.failedList
+        if args.quiet==False:
             print "shutting down..."
         for t in self.threads:
-            t.stop()
+                t.stop()
         self.active = False
-
-    def ping(self, rserver, rport, rpassword):
-        """send ping command, send a alter main when ping failed.
-        """
-        try:
-            if self.pool is None:
-                pool = redis.ConnectionPool(host=rserver, port=rport, db=0, password=rpassword)
-            connection = pool.get_connection('ping', None)
-            connection.send_command("ping")
-            return True
-        except Exception:
-            self.failedList.append(rserver + ":" + str(rport))
-            return False
-
-    def sendMail(self):
-        """Send alter mail when ping failed.
-        """
-        content = '<table><thead><tr><th>IP</th><th>DOWN</th></tr></thead><tbody>'
-        for f in self.failedList:
-            content += '<tr><td style="padding: 8px;line-height: 20px;vertical-align: top;border-top: 1px solid #ddd;">'
-            content += f + '</td>'
-            content += '<td style="color: red;padding: 8px;line-height: 20px;vertical-align: top;border-top: 1px solid #ddd;">yes</td>'
-        content += '</tbody></table>'
-        mailConfig = settings.get_mail()
-        sendemail.send(mailConfig.get('FromAddr'), mailConfig.get(
-            'ToAddr'), mailConfig.get('SMTPServer'), content)
 
 
 if __name__ == '__main__':

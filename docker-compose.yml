@@ -1,0 +1,28 @@
+version: '2'
+services:
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis:4.0.2-alpine
+    restart: always
+    expose:
+      - "6379"
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: "Asia/Seoul"
+  redislive:
+    container_name: redislive
+    hostname: redislive
+    image: minyk/redislive:dev
+    restart: always
+    volumes:
+      - ./redis-live.conf.test:/redislive/src/redis-live.conf:ro
+    expose:
+      - "58888"
+    ports:
+      - "58888:58888"
+    links:
+      - redis
+    environment:
+      TZ: "Asia/Seoul"

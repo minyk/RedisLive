@@ -1,0 +1,23 @@
+{
+	"RedisServers":
+	[
+		{
+  			"server": "redis",
+  			"port" : 6379
+		}
+	],
+
+	"DataStoreType" : "sqlite",
+
+	"SqliteStatsStore" :
+	{
+		"path":  "/redislive/src/db/redislive.sqlite"
+	},
+
+	"Mail":
+	{
+		"FromAddr": "xxx",
+		"ToAddr" : ["xxx"],
+		"SMTPServer": "xxx"
+	}
+}
